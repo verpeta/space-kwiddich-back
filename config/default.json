@@ -1,0 +1,28 @@
+{
+  "toDoApp": {
+    "routeDirPaths": [
+      "./src/Route/ToDo"
+    ],
+    "port": 1488
+  },
+  "apiApp": {
+    "routeDirPaths": [
+      "./src/Route/Api"
+    ],
+    "port": 1489
+  },
+  "logger": {
+    "console": {
+      "level": "debug"
+    },
+    "file": {
+      "level": "info",
+      "filename": "./var/log/logs.txt"
+    },
+    "sentry": {
+      "level": "error",
+      "sentryDsn": ""
+    }
+  },
+  "someKey": 1
+}

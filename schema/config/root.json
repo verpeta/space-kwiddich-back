@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required": [
+        "logger",
+        "toDoApp",
+        "apiApp"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "logger": {
+            "$ref": "/logger"
+        },
+        "toDoApp": {
+            "$ref": "/toDoApp"
+        },
+        "apiApp": {
+            "$ref": "/apiApp"
+        }
+    }
+}

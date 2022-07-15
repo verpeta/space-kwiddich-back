@@ -1,0 +1,7 @@
+{
+    "logger": {
+        "sentry": {
+            "sentryDsn": "NODE_SENTRY_DSN"
+        }
+    }
+}

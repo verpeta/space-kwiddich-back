@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "/logger",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "console": {
+            "type": "object",
+            "required": [
+                "level"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "level": {
+                    "type": "string",
+                    "pattern": "^(silly|debug|verbose|http|info|warn|error)$"
+                }
+            }
+        },
+        "file": {
+            "type": "object",
+            "required": [
+                "level",
+                "filename"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "level": {
+                    "type": "string",
+                    "pattern": "^(silly|debug|verbose|http|info|warn|error)$"
+                },
+                "filename": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "raven": {
+            "type": "object",
+            "required": [
+                "level",
+                "sentryDsn"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "level": {
+                    "type": "string",
+                    "pattern": "^(silly|debug|verbose|http|info|warn|error)$"
+                },
+                "sentryDsn": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

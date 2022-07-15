@@ -1,0 +1,14 @@
+{
+    "logger": {
+        "file": {
+            "level": "info",
+            "filename": "./var/log/logs.txt"
+        },
+        "raven": {
+            "level": "error",
+            "sentryDsn": ""
+        }
+    },
+    "someKey": 3
+}
+

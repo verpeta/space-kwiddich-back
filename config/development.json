@@ -1,0 +1,9 @@
+{
+    "logger": {
+        "console": {
+            "level": "debug"
+        }
+    },
+    "someKey": 2
+}
+
