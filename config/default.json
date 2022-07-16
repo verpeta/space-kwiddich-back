@@ -9,7 +9,8 @@
     "routeDirPaths": [
       "./src/Route/Api"
     ],
-    "port": 1489
+    "port": 3005,
+    "ALLOWED_ORIGIN": "http://localhost:8080"
   },
   "logger": {
     "console": {

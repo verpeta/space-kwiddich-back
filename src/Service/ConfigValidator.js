@@ -32,7 +32,7 @@ class ConfigValidator {
         this._jsonSchemaValidator.validate(
             config,
             this._rootSchema,
-            { throwAll: true, required: true, allowUnknownAttributes: false }
+            { throwAll: false, required: true, allowUnknownAttributes: true }
         );
     }
 }

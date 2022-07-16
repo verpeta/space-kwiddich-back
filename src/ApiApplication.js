@@ -5,6 +5,12 @@ const EventEmitter = require('events').EventEmitter;
 const uuid         = require('uuid/v4');
 const bodyParser   = require('body-parser');
 const express      = require('express');
+const {Server} = require("socket.io");
+const {onConnection} = require('./Service/Api/Socket/SocketEvents')
+const { createContainer, asValue, InjectionMode, Lifetime } = require('awilix')
+const { scopePerRequest } = require('awilix-express')
+
+
 
 class ApiApplication extends EventEmitter {
 
@@ -90,6 +96,37 @@ class ApiApplication extends EventEmitter {
         app.use(bodyParser.json());
 
 
+        // Di
+        this.container = createContainer({
+            injectionMode: InjectionMode.PROXY
+        });
+        const opts = {
+            formatName: 'camelCase',
+            cwd: __dirname,
+            resolverOptions: {
+                lifetime: Lifetime.SINGLETON,
+            }
+        }
+        this.container.register({
+            logger: asValue(this._logger),
+        })
+        await this.container.loadModules(
+            [
+                'Service/Api/*/*.js',
+            ],
+            opts,
+        )
+
+        app.use(scopePerRequest(this.container))
+
+        app.use((req, res, next) => {
+            req.container.register({
+                currentUser: asValue(115)
+            })
+
+            return next()
+        })
+
 
         await this._routeLoader.load(this, app, this._config.rootPath, this._config.routeDirPaths);
 
@@ -108,6 +145,17 @@ class ApiApplication extends EventEmitter {
             }
 
             const server = http.createServer(this._app);
+
+            const io = new Server(server, {
+                cors: {
+                    origin: this._config.ALLOWED_ORIGIN,
+                    credentials: true
+                }
+            })
+
+            io.on('connection', (socket) => {
+                onConnection(io, socket)
+            })
 
             const onInitError = (error) => {
                 this._status = ApiApplication.STATUS_STOPPED;

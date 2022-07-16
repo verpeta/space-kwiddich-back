@@ -11,5 +11,20 @@ module.exports = (app) => {
         res.send(response);
     });
 
+    router.get(`/api/user/all`, (req, res) => {
+        const pService = req.container.resolve('playersService');
+        const response = pService.getPlayersList();
+
+        res.send(response);
+    });
+
+    router.post(`/api/user/add`, (req, res) => {
+        const pService = req.container.resolve('playersService');
+        pService.addPlayer(req.body.id);
+        const response = pService.getPlayersList();
+
+        res.send(response);
+    });
+
     return router;
 };
