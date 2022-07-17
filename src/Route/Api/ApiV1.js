@@ -13,15 +13,26 @@ module.exports = (app) => {
 
     router.get(`/api/user/all`, (req, res) => {
         const pService = req.container.resolve('playersService');
-        const response = pService.getPlayersList();
+        const response = {players: pService.getPlayersList()};
 
         res.send(response);
     });
 
-    router.post(`/api/user/add`, (req, res) => {
+    router.post(`/api/user/add`, async (req, res) => {
         const pService = req.container.resolve('playersService');
-        pService.addPlayer(req.body.id);
-        const response = pService.getPlayersList();
+        const pData = req.body;
+
+        if (pService.getPlayerByNickname(pData.nickname)) {
+            res.send({
+                errors: [
+                    'Choose another nickname.'
+                ]
+            });
+            return;
+        }
+
+        await pService.addPlayer(pData);
+        const response = {players: pService.getPlayersList()};
 
         res.send(response);
     });

@@ -1,15 +1,14 @@
 'use strict';
 
-const http         = require('http');
+const http = require('http');
 const EventEmitter = require('events').EventEmitter;
-const uuid         = require('uuid/v4');
-const bodyParser   = require('body-parser');
-const express      = require('express');
+const uuid = require('uuid/v4');
+const bodyParser = require('body-parser');
+const express = require('express');
 const {Server} = require("socket.io");
-const {onConnection} = require('./Service/Api/Socket/SocketEvents')
-const { createContainer, asValue, InjectionMode, Lifetime } = require('awilix')
-const { scopePerRequest } = require('awilix-express')
-
+const {createContainer, asValue, InjectionMode, Lifetime} = require('awilix')
+const {scopePerRequest} = require('awilix-express')
+const cors = require("cors");
 
 
 class ApiApplication extends EventEmitter {
@@ -37,9 +36,9 @@ class ApiApplication extends EventEmitter {
      */
     constructor(config, routeLoader, logger) {
         super();
-        this._config      = config;
+        this._config = config;
         this._routeLoader = routeLoader;
-        this._logger      = logger;
+        this._logger = logger;
 
         this._id = uuid();
         /** @type {express|undefined} **/
@@ -94,9 +93,31 @@ class ApiApplication extends EventEmitter {
 
         app.use(bodyParser.urlencoded({extended: true}));
         app.use(bodyParser.json());
+        app.use(cors({ origin: ['http://localhost:8080'], }))
+
 
 
         // Di
+        await this.#initDI()
+
+        app.use(scopePerRequest(this.container))
+        app.use((req, res, next) => {
+            req.container.register({
+                currentUser: asValue(115)
+            })
+
+            return next()
+        })
+
+
+        await this._routeLoader.load(this, app, this._config.rootPath, this._config.routeDirPaths);
+
+        this._app = app;
+
+        return this;
+    }
+
+    async #initDI() {
         this.container = createContainer({
             injectionMode: InjectionMode.PROXY
         });
@@ -116,23 +137,6 @@ class ApiApplication extends EventEmitter {
             ],
             opts,
         )
-
-        app.use(scopePerRequest(this.container))
-
-        app.use((req, res, next) => {
-            req.container.register({
-                currentUser: asValue(115)
-            })
-
-            return next()
-        })
-
-
-        await this._routeLoader.load(this, app, this._config.rootPath, this._config.routeDirPaths);
-
-        this._app = app;
-
-        return this;
     }
 
     /**
@@ -151,10 +155,15 @@ class ApiApplication extends EventEmitter {
                     origin: this._config.ALLOWED_ORIGIN,
                     credentials: true
                 }
-            })
+            });
+
+            this.container.register({
+                io: asValue(io)
+            });
 
             io.on('connection', (socket) => {
-                onConnection(io, socket)
+                const ss = this.container.cradle.socketEvents;
+                ss.onConnection(socket);
             })
 
             const onInitError = (error) => {

@@ -1,19 +1,42 @@
+const _ = require("lodash");
 module.exports = class PlayersService {
-    #players = [5,67];
+    #players = [];
     #logger;
 
     constructor(opts) {
-         this.#logger = opts.logger;
-        this.currentUser = opts.currentUser;
-        this.#logger.debug(opts.currentUser);
+        this.#logger = opts.logger;
     }
 
     addPlayer(playerData) {
+        console.log("Added Player", playerData);
         this.#players.push(playerData);
+
+        return playerData;
     }
 
-    removePlayer(playerData) {
-        this.#logger.debug(this.#players.find(playerData));
+    getPlayer(id) {
+        console.log(this.#players);
+        return _.find(this.#players, {id: id});
+    }
+
+    updatePlayer(nickname, newData) {
+        const id = _.findIndex(this.#players, {nickname:nickname});
+        if (id === -1) {
+            throw new Error("User cannot be updated. Nickname not found - " + nickname);
+        }
+        return this.#players[id] = newData;
+    }
+
+    getPlayerByNickname(nickname) {
+        const tmp = _.find(this.#players, {nickname: nickname});
+        console.log("search", nickname, this.#players, tmp);
+
+        return tmp;
+    }
+
+    removePlayer(socket) {
+        this.#logger.debug('Removed player - ' + socket.player.nickname);
+        delete (this.#players[_.findIndex(this.#players, {playerId: socket.id})]);
     }
 
     getPlayersList() {
