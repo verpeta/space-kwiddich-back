@@ -1,0 +1,49 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: self-hosted
+    steps:
+      - name: test ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: 168.119.248.32
+          username: deploy
+          key: ${{secrets.OMG_SECRET}}
+          port: 22
+          script: |
+            cd ./space-kwiddich-back
+            git pull
+            yarn install
+
+
+#jobs:
+#  build:
+#
+#    runs-on: ubuntu-latest
+#
+#    strategy:
+#      matrix:
+#        node-version: [14.x]
+#        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+#
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: Use Node.js ${{ matrix.node-version }}
+#      uses: actions/setup-node@v3
+#      with:
+#        node-version: ${{ matrix.node-version }}
+#        cache: 'npm'
+#    - run: npm install yarn
+#    - run: yarn install
+#    - run: yarn build
