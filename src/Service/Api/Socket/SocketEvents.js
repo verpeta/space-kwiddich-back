@@ -11,6 +11,10 @@ var scores = {
     blue: 0,
     red: 0
 };
+var killed = {
+    blue: 0,
+    red: 0
+};
 
 module.exports = class SocketEvents {
     #logger;
@@ -52,6 +56,15 @@ module.exports = class SocketEvents {
             this.#io.emit('starLocation', star);
             this.#io.emit('scoreUpdate', scores);
         }.bind(this));
+
+        socket.on('bugKilled', function () {
+            if (currentPlayer.team === 'red') {
+                killed.red += 1;
+            } else {
+                killed.blue += 1;
+            }
+            this.#io.emit('killCountUpdate', killed);
+        }.bind(this));
     }
 
     #onNewUserConnected(socket) {
@@ -68,7 +81,7 @@ module.exports = class SocketEvents {
                 x: Math.floor(Math.random() * 150) + 50,
                 y: Math.floor(Math.random() * 300) + 50,
                 playerId: socket.id,
-                team: (Math.floor(Math.random() * 2) === 0) ? 'red' : 'blue'
+                team: this.#playersService.getLastPlayer()?.team === 'blue' ? 'red' : 'blue'
             });
 
         socket.emit('currentPlayers', this.#playersService.getPlayersList());

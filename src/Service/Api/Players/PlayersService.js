@@ -34,6 +34,19 @@ module.exports = class PlayersService {
         return tmp;
     }
 
+    getLastPlayer() {
+        const tmp =this.#players.filter(x => x != null && x.team)
+            .slice(-1)
+            [0];
+        console.log("last", tmp);
+
+        return tmp;
+
+        // return this.#players.filter(x => x != null)
+        //     .slice(-1)
+        //     [0]
+    }
+
     removePlayer(socket) {
         this.#logger.debug('Removed player - ' + socket.player.nickname);
         delete (this.#players[_.findIndex(this.#players, {playerId: socket.id})]);

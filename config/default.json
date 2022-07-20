@@ -10,7 +10,8 @@
       "./src/Route/Api"
     ],
     "port": 3005,
-    "ALLOWED_ORIGIN": "//168.119.248.32:80"
+    "ALLOWED_ORIGIN": true
+//    "ALLOWED_ORIGIN": "//168.119.248.32:80"
   },
   "logger": {
     "console": {
