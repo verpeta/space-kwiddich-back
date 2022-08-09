@@ -94,6 +94,7 @@ async function stopApplications(emergency = false) {
 }
 
 startApplications().catch(err => {
+    console.log(err)
     logger.error(err);
     logger.close();
 

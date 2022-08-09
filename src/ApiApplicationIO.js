@@ -9,7 +9,7 @@ const {Server} = require("socket.io");
 const {createContainer, asValue, InjectionMode, Lifetime} = require('awilix')
 const {scopePerRequest} = require('awilix-express')
 const cors = require("cors");
-const PhaserGame = require("./Service/Api/game");
+
 
 class ApiApplication extends EventEmitter {
 
@@ -142,8 +142,7 @@ class ApiApplication extends EventEmitter {
     /**
      * @return {Promise}
      */
-    async start() {
-        const geckos = (await import('@geckos.io/server')).default
+    start() {
         return new Promise((resolve, reject) => {
             if (this._status !== ApiApplication.STATUS_STOPPED) {
                 return reject(new Error('Service is already started or is starting right now'));
@@ -151,30 +150,21 @@ class ApiApplication extends EventEmitter {
 
             const server = http.createServer(this._app);
 
-            const game = new PhaserGame(server, geckos)
-
-            this._app.get('/getState', (_req, res) => {
-                try {
-                    let gameScene = game.scene.keys['GameScene']
-                    return res.json({
-                        matchState: gameScene.matchState.getState(),
-                        orders: gameScene.orders.toArray(),
-                        scores: gameScene.scores.toArray(),
-                        state: gameScene.getState(),
-                    })
-                } catch (error) {
-                    console.error(error)
-                    return res.status(500).json({ error: error.message })
+            const io = new Server(server, {
+                cors: {
+                    origin: this._config.ALLOWED_ORIGIN,
+                    credentials: true
                 }
+            });
+
+            this.container.register({
+                io: asValue(io)
+            });
+
+            io.on('connection', (socket) => {
+                const ss = this.container.cradle.socketEvents;
+                ss.onConnection(socket);
             })
-            // this.container.register({
-            //     io: asValue(io)
-            // });
-            //
-            // io.on('connection', (socket) => {
-            //     const ss = this.container.cradle.socketEvents;
-            //     ss.onConnection(socket);
-            // })
 
             const onInitError = (error) => {
                 this._status = ApiApplication.STATUS_STOPPED;
